@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-use crate::commands::Command;
+use crate::commands::{Command, CommandHandler};
 
 pub struct CommandHelp;
 
@@ -12,12 +12,17 @@ impl Command for CommandHelp {
     fn description(&self) -> String {
         format!(
             "{} {}",
-            self.name().bright_blue(),
+            self.name(),
             "- Displays a list of available commands"
         )
     }
 
-    fn execute(&self) -> Result<(), String> {
+    fn execute(&self, handler: &CommandHandler, _args: Vec<String>) -> Result<(), String> {
+        println!("{}", "Commands\n=========".bold().cyan());
+        handler
+            .commands
+            .iter()
+            .for_each(|cmd| println!("{}", cmd.description()));
         Ok(())
     }
 

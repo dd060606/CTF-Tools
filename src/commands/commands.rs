@@ -1,40 +1,66 @@
+use std::sync::{Arc, Mutex};
+
+use crate::commands::command_debug::CommandDebug;
+use crate::commands::CommandExit;
 use crate::commands::CommandHelp;
+use crate::commands::CommandList;
+use crate::connections::Connections;
 
 pub trait Command {
     fn name(&self) -> String;
     fn description(&self) -> String;
-    fn execute(&self) -> Result<(), String>;
+    fn execute(&self, handler: &CommandHandler, args: Vec<String>) -> Result<(), String>;
 
     fn alias(&self) -> String;
 }
 
-pub struct CommandHandler {
-    commands: Vec<Box<dyn Command>>,
+pub struct CommandHandler<'a> {
+    pub commands: Vec<Box<dyn Command>>,
+    pub connections: &'a Arc<Mutex<Connections>>,
 }
-impl CommandHandler {
-    pub fn new() -> CommandHandler {
+impl CommandHandler<'_> {
+    pub fn new(connections: &Arc<Mutex<Connections>>) -> CommandHandler {
         let mut commands: Vec<Box<dyn Command>> = Vec::new();
         //Register commands
         commands.push(Box::new(CommandHelp {}));
-        CommandHandler { commands }
-    }
+        commands.push(Box::new(CommandList {}));
+        commands.push(Box::new(CommandExit {}));
+        commands.push(Box::new(CommandDebug {}));
 
-    pub fn handle_command(&self, command_name: String) -> Result<(), String> {
-        match self.get_cmd(&command_name) {
-            None => Err(format!(
-                "Command '{}' not found. Use 'help' to see all available commands.",
-                command_name
-            )),
-            Some(cmd) => cmd.execute(),
+        CommandHandler {
+            commands,
+            connections,
         }
     }
 
+    pub fn handle_command(&self, command: String) -> Result<(), String> {
+        match self.get_cmd(&command) {
+            None => Err(format!(
+                "Command '{}' not found. Use 'help' to see all available commands.",
+                command
+            )),
+            Some(cmd) => cmd.execute(self, self.get_args(&command)),
+        }
+    }
+
+    //Get command by name
     fn get_cmd(&self, cmd_name: &String) -> Option<&Box<dyn Command>> {
         for command in self.commands.iter() {
-            if command.name().starts_with(cmd_name) || command.alias().starts_with(cmd_name) {
+            if cmd_name.starts_with(&command.name()) || cmd_name.starts_with(&command.alias()) {
                 return Some(command);
             }
         }
         None
+    }
+
+    //Get args of the inputted command
+    fn get_args(&self, cmd: &String) -> Vec<String> {
+        let mut args_res = vec![];
+        let mut args = cmd.split_whitespace();
+        args.next();
+        for arg in args {
+            args_res.push(arg.to_string());
+        }
+        args_res
     }
 }

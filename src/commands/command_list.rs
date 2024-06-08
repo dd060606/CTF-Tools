@@ -1,6 +1,4 @@
-use colored::Colorize;
-
-use crate::commands::Command;
+use crate::commands::{Command, CommandHandler};
 
 pub struct CommandList;
 
@@ -10,14 +8,10 @@ impl Command for CommandList {
     }
 
     fn description(&self) -> String {
-        format!(
-            "{} {}",
-            self.name().bright_blue(),
-            "- List connected clients"
-        )
+        format!("{} {}", self.name(), "- List connected clients")
     }
 
-    fn execute(&self) -> Result<(), String> {
+    fn execute(&self, _handler: &CommandHandler, _args: Vec<String>) -> Result<(), String> {
         Ok(())
     }
 
