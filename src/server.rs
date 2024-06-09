@@ -3,7 +3,6 @@ use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use colored::Colorize;
 use rustyline::DefaultEditor;
 use rustyline::error::ReadlineError;
 
@@ -85,11 +84,6 @@ fn start_tcp_server(connections: &Arc<Mutex<Connections>>) {
             match stream {
                 Ok(stream) => {
                     let mut connections = connections.lock().unwrap();
-                    success!(
-                        "New connection: {} ({})",
-                        stream.peer_addr().unwrap(),
-                        next_id
-                    );
                     connections.add_connection(next_id, stream);
                     next_id += 1;
                 }

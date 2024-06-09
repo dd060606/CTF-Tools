@@ -2,8 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use colored::Colorize;
 
+use crate::commands::{CommandExit, CommandSelect};
 use crate::commands::command_debug::CommandDebug;
-use crate::commands::CommandExit;
 use crate::commands::CommandHelp;
 use crate::commands::CommandList;
 use crate::connections::Connections;
@@ -28,6 +28,7 @@ impl<'a> CommandHandler<'a> {
         commands.push(Box::new(CommandList {}));
         commands.push(Box::new(CommandExit {}));
         commands.push(Box::new(CommandDebug {}));
+        commands.push(Box::new(CommandSelect {}));
 
         CommandHandler {
             commands,
