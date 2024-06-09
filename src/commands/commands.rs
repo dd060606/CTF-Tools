@@ -47,7 +47,7 @@ impl<'a> CommandHandler<'a> {
     }
 
     //Get command by name
-    fn get_cmd(&self, cmd_name: &String) -> Option<&Box<dyn Command>> {
+    pub fn get_cmd(&self, cmd_name: &String) -> Option<&Box<dyn Command>> {
         for command in self.commands.iter() {
             if cmd_name.starts_with(&command.name()) || cmd_name.starts_with(&command.alias()) {
                 return Some(command);
