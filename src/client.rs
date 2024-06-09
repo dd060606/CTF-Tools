@@ -1,6 +1,6 @@
+use std::{process, thread};
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::thread;
 use std::time::Duration;
 
 use crate::{error, success};
@@ -42,7 +42,11 @@ pub fn start_client(ip: String, port: String) {
 fn handle_server_response(stream: &mut TcpStream, response: String) {
     let mut lines = response.lines();
     if let Some(first_line) = lines.next() {
-        match first_line.to_lowercase() {
+        match first_line {
+            "CLOSE" => {
+                stream.write_all(b"OK").unwrap();
+                process::exit(0);
+            }
             _ => stream
                 .write_all(
                     format!(
