@@ -5,38 +5,35 @@ use std::time::Duration;
 
 use colored::Colorize;
 
+use crate::{error, success};
+
 pub fn start_client(ip: String, port: String) {
     loop {
         match TcpStream::connect(format!("{}:{}", ip, port)) {
             Ok(mut stream) => {
-                println!(
-                    "[{}] Successfully connected to server in port {}",
-                    "+".bright_green(),
-                    port
-                );
-
-                let new_connection = b"NEW";
-
-                let _ = stream.write_all(new_connection);
-
+                success!("Successfully connected to server in port {}", port);
                 let mut buffer = [0; 1024];
                 loop {
-                    match stream.read_exact(&mut buffer) {
-                        Ok(_) => {
-                            let response = String::from_utf8_lossy(&buffer);
-                            println!("Received response from server: {}", response);
+                    match stream.read(&mut buffer) {
+                        Ok(size) => {
+                            if size > 0 {
+                                let response = String::from_utf8_lossy(&buffer[..size]);
+                                success!("Received response from server: {}", response);
+                                stream.write(b"YO").unwrap();
+                            }
                         }
                         Err(e) => {
-                            println!("Failed to read from server: {}", e);
+                            error!("Failed to read from server: {}", e);
                             break;
                         }
                     }
+                    thread::sleep(Duration::from_millis(100)); // Prevent busy-waiting
                 }
             }
             Err(e) => {
-                eprintln!("[{}] Error: {}", "-".red(), e);
+                error!("Error: {}", e);
             }
         }
-        thread::sleep(Duration::from_secs(30))
+        thread::sleep(Duration::from_secs(30));
     }
 }

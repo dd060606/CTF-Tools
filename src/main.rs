@@ -6,7 +6,10 @@ use crate::server::start_server;
 mod client;
 mod commands;
 mod connections;
+
 mod server;
+#[macro_use]
+mod macros;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

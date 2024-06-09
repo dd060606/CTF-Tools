@@ -1,5 +1,7 @@
 use std::sync::{Arc, Mutex};
 
+use colored::Colorize;
+
 use crate::commands::command_debug::CommandDebug;
 use crate::commands::CommandExit;
 use crate::commands::CommandHelp;
@@ -18,8 +20,8 @@ pub struct CommandHandler<'a> {
     pub commands: Vec<Box<dyn Command>>,
     pub connections: &'a Arc<Mutex<Connections>>,
 }
-impl CommandHandler<'_> {
-    pub fn new(connections: &Arc<Mutex<Connections>>) -> CommandHandler {
+impl<'a> CommandHandler<'a> {
+    pub fn new(connections: &'a Arc<Mutex<Connections>>) -> CommandHandler {
         let mut commands: Vec<Box<dyn Command>> = Vec::new();
         //Register commands
         commands.push(Box::new(CommandHelp {}));
@@ -63,4 +65,10 @@ impl CommandHandler<'_> {
         }
         args_res
     }
+}
+
+//Show command usage
+pub fn cmd_usage(cmd: &dyn Command) {
+    println!("{}", "Usage:\n------".bright_yellow());
+    println!("  {}", cmd.description());
 }

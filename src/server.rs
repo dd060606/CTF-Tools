@@ -7,6 +7,7 @@ use colored::Colorize;
 use rustyline::DefaultEditor;
 use rustyline::error::ReadlineError;
 
+use crate::{error, success};
 use crate::commands::CommandHandler;
 use crate::connections::Connections;
 
@@ -25,7 +26,7 @@ pub fn start_server() {
     let command_handler = CommandHandler::new(&connections);
 
     let mut rl = DefaultEditor::new().unwrap_or_else(|e| {
-        eprintln!("Error: {}", e);
+        error!("Error: {}", e);
         process::exit(1);
     });
 
@@ -41,7 +42,7 @@ pub fn start_server() {
                 match cmd_res {
                     Ok(_) => {}
                     Err(err) => {
-                        eprintln!("[{}] {}", "-".red(), err)
+                        error!("{}", err);
                     }
                 }
             }
@@ -77,24 +78,23 @@ fn start_tcp_server(connections: &Arc<Mutex<Connections>>) {
                 }
             }
         };
-        println!("[{}] Server listening on port {}", "+".bright_green(), port);
+        success!("Server listening on port {}", port);
         // Counter to assign unique IDs to connections
         let mut next_id: u16 = 1;
         for stream in listener.incoming() {
             match stream {
                 Ok(stream) => {
                     let mut connections = connections.lock().unwrap();
-                    println!(
-                        "[{}] New connection: {} {}",
-                        "+".bright_green(),
-                        next_id,
-                        stream.peer_addr().unwrap()
+                    success!(
+                        "New connection: {} ({})",
+                        stream.peer_addr().unwrap(),
+                        next_id
                     );
                     connections.add_connection(next_id, stream);
                     next_id += 1;
                 }
                 Err(e) => {
-                    eprintln!("[{}] Connection failed: {}", "-".red(), e);
+                    error!("Connection failed: {}", e);
                 }
             }
         }
