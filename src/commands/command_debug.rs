@@ -1,3 +1,5 @@
+use colored::Colorize;
+
 use crate::commands::{cmd_usage, Command, CommandHandler};
 use crate::success;
 

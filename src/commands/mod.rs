@@ -12,4 +12,5 @@ mod command_exit;
 mod command_help;
 mod command_list;
 mod command_select;
+mod command_upload;
 mod commands;

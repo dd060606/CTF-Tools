@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::env;
 
 use crate::client::start_client;
@@ -10,6 +12,7 @@ mod connections;
 mod server;
 #[macro_use]
 mod macros;
+mod files;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

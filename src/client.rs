@@ -1,9 +1,13 @@
 use std::{process, thread};
 use std::io::{Read, Write};
 use std::net::TcpStream;
+use std::path::Path;
 use std::time::Duration;
 
+use colored::Colorize;
+
 use crate::{error, success};
+use crate::files::{prep_download, receive_file};
 
 pub fn start_client(ip: String, port: String) {
     loop {
@@ -46,6 +50,24 @@ fn handle_server_response(stream: &mut TcpStream, response: String) {
             "CLOSE" => {
                 stream.write_all(b"OK").unwrap();
                 process::exit(0);
+            }
+            "UPLOAD" => {
+                let path_str = lines.next().unwrap().trim_matches(char::from(0)).trim();
+                let file_len = lines
+                    .next()
+                    .unwrap()
+                    .trim_matches(char::from(0))
+                    .trim()
+                    .parse::<u64>()
+                    .unwrap();
+                let output = Path::new(&path_str);
+                match prep_download(output) {
+                    Ok(_) => {
+                        stream.write_all(b"OK").unwrap();
+                        receive_file(stream, output, file_len);
+                    }
+                    Err(e) => stream.write_all(e.as_bytes()).unwrap(),
+                }
             }
             _ => stream
                 .write_all(

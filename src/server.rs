@@ -3,6 +3,7 @@ use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+use colored::Colorize;
 use rustyline::DefaultEditor;
 use rustyline::error::ReadlineError;
 
@@ -23,7 +24,6 @@ pub fn start_server() {
     thread::sleep(Duration::from_millis(500));
 
     let command_handler = CommandHandler::new(&connections);
-
     let mut rl = DefaultEditor::new().unwrap_or_else(|e| {
         error!("Error: {}", e);
         process::exit(1);
@@ -82,11 +82,14 @@ fn start_tcp_server(connections: &Arc<Mutex<Connections>>) {
         let mut next_id: u16 = 1;
         for stream in listener.incoming() {
             match stream {
-                Ok(stream) => {
-                    let mut connections = connections.lock().unwrap();
-                    connections.add_connection(next_id, stream);
-                    next_id += 1;
-                }
+                Ok(stream) => loop {
+                    if !connections.is_poisoned() {
+                        let mut connections = connections.lock().unwrap();
+                        connections.add_connection(next_id, stream);
+                        next_id += 1;
+                        break;
+                    }
+                },
                 Err(e) => {
                     error!("Connection failed: {}", e);
                 }

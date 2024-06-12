@@ -3,6 +3,8 @@ use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
+use colored::Colorize;
+
 use crate::{error, success};
 
 pub struct Connections {
@@ -73,5 +75,13 @@ impl Connections {
     //Change current connection ID
     pub fn set_current_connection(&mut self, id: u16) {
         self.current_connection = id;
+    }
+
+    pub fn get_stream(&mut self) -> Option<&mut TcpStream> {
+        if let Some(stream) = self.get_connection(self.current_connection) {
+            Some(stream)
+        } else {
+            None
+        }
     }
 }

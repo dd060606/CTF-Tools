@@ -5,6 +5,7 @@ use colored::Colorize;
 use crate::commands::{
     CommandClose, CommandDebug, CommandExit, CommandHelp, CommandList, CommandSelect,
 };
+use crate::commands::command_upload::CommandUpload;
 use crate::connections::Connections;
 
 pub trait Command {
@@ -29,6 +30,7 @@ impl<'a> CommandHandler<'a> {
         commands.push(Box::new(CommandDebug {}));
         commands.push(Box::new(CommandSelect {}));
         commands.push(Box::new(CommandClose {}));
+        commands.push(Box::new(CommandUpload {}));
 
         CommandHandler {
             commands,
