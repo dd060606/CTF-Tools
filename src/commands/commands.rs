@@ -3,9 +3,9 @@ use std::sync::{Arc, Mutex};
 use colored::Colorize;
 
 use crate::commands::{
-    CommandClose, CommandDebug, CommandExit, CommandHelp, CommandList, CommandSelect,
+    CommandClose, CommandDebug, CommandDownload, CommandExit, CommandHelp, CommandList,
+    CommandSelect, CommandUpload,
 };
-use crate::commands::command_upload::CommandUpload;
 use crate::connections::Connections;
 
 pub trait Command {
@@ -31,6 +31,7 @@ impl<'a> CommandHandler<'a> {
         commands.push(Box::new(CommandSelect {}));
         commands.push(Box::new(CommandClose {}));
         commands.push(Box::new(CommandUpload {}));
+        commands.push(Box::new(CommandDownload {}));
 
         CommandHandler {
             commands,

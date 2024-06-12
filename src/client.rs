@@ -1,4 +1,5 @@
 use std::{process, thread};
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::path::Path;
@@ -7,7 +8,7 @@ use std::time::Duration;
 use colored::Colorize;
 
 use crate::{error, success};
-use crate::files::{prep_download, receive_file};
+use crate::files::{prep_download, receive_file, upload};
 
 pub fn start_client(ip: String, port: String) {
     loop {
@@ -68,6 +69,21 @@ fn handle_server_response(stream: &mut TcpStream, response: String) {
                     }
                     Err(e) => stream.write_all(e.as_bytes()).unwrap(),
                 }
+            }
+            "DOWNLOAD" => {
+                let path_str = lines.next().unwrap().trim_matches(char::from(0)).trim();
+                match OpenOptions::new().read(true).open(path_str) {
+                    Ok(file) => match file.metadata() {
+                        Ok(metadata) => {
+                            stream
+                                .write_all(format!("OK\n\r{}", metadata.len()).as_bytes())
+                                .unwrap();
+                            upload(stream, Path::new(path_str));
+                        }
+                        Err(e) => stream.write_all(e.to_string().as_bytes()).unwrap(),
+                    },
+                    Err(e) => stream.write_all(e.to_string().as_bytes()).unwrap(),
+                };
             }
             _ => stream
                 .write_all(

@@ -37,7 +37,7 @@ impl Command for CommandUpload {
             ));
         }
         //Check if the local file is readable and get it size
-        let mut file_len: u64;
+        let file_len: u64;
         match File::open(local_path) {
             Ok(file) => match file.metadata() {
                 Ok(metadata) => file_len = metadata.len(),

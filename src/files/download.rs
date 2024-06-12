@@ -45,14 +45,19 @@ pub fn receive_file(stream: &mut TcpStream, output: &Path, file_len: u64) {
             }
             Ok(n) => {
                 if let Err(e) = file.write_all(&buffer[..n]) {
-                    return error!("Failed to write to file: {}", e);
+                    error!("Failed to write to file: {}", e);
+                    break;
                 }
                 received_size += n as u64;
                 if received_size >= file_len {
+                    success!("File downloaded");
                     break;
                 }
             }
-            Err(e) => return error!("Failed to read from socket: {}", e),
+            Err(e) => {
+                error!("Failed to read from socket: {}", e);
+                break;
+            }
         }
     }
 }
