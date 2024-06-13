@@ -24,6 +24,7 @@ pub fn start_server() {
     thread::sleep(Duration::from_millis(500));
 
     let command_handler = CommandHandler::new(&connections);
+
     let mut rl = DefaultEditor::new().unwrap_or_else(|e| {
         error!("Error: {}", e);
         process::exit(1);
@@ -46,11 +47,11 @@ pub fn start_server() {
                 }
             }
             Err(ReadlineError::Interrupted) => {
-                println!("CTRL-C");
+                println!("CTRL+C");
                 break;
             }
             Err(ReadlineError::Eof) => {
-                println!("CTRL-D");
+                println!("CTRL+D");
                 break;
             }
             Err(err) => {
@@ -59,6 +60,7 @@ pub fn start_server() {
             }
         }
     }
+    let _ = command_handler.handle_command(String::from("exit"));
 }
 
 fn start_tcp_server(connections: &Arc<Mutex<Connections>>) {

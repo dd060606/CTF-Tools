@@ -84,4 +84,10 @@ impl Connections {
             None
         }
     }
+
+    pub fn send_quit(&mut self) {
+        self.connections.iter().for_each(|mut client| {
+            let _ = client.1.write_all(b"QUIT");
+        });
+    }
 }
