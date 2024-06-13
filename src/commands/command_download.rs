@@ -45,7 +45,7 @@ impl Command for CommandDownload {
                     let remote_file = Path::new(&args[0]);
                     if args.len() >= 2 {
                         let mut pathbuf = PathBuf::from(&args[1]);
-                        if pathbuf.is_dir() {
+                        if pathbuf.ends_with("/") {
                             pathbuf.push(remote_file.file_name().unwrap());
                         }
                         receive_file(connections.get_stream().unwrap(), pathbuf.as_path(), size);

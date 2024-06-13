@@ -7,3 +7,13 @@ edition = "2021"
 colored = "2.1.0"
 rustyline = "14.0.0"
 whoami = "1.5.1"
+encoding_rs = "0.8.34"
+
+[target.'cfg(unix)'.dependencies]
+termios = "0.3.3"
+signal-hook = "0.3.17"
+
+[profile.release]
+opt-level = "z" #Optimize for size
+lto = true
+codegen-units = 1

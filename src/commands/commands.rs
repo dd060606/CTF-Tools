@@ -4,7 +4,7 @@ use colored::Colorize;
 
 use crate::commands::{
     CommandClose, CommandDebug, CommandDownload, CommandExit, CommandHelp, CommandList,
-    CommandSelect, CommandUpload,
+    CommandSelect, CommandShell, CommandUpload,
 };
 use crate::connections::Connections;
 
@@ -32,6 +32,7 @@ impl<'a> CommandHandler<'a> {
         commands.push(Box::new(CommandClose {}));
         commands.push(Box::new(CommandUpload {}));
         commands.push(Box::new(CommandDownload {}));
+        commands.push(Box::new(CommandShell {}));
 
         CommandHandler {
             commands,

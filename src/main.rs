@@ -13,6 +13,7 @@ mod server;
 #[macro_use]
 mod macros;
 mod files;
+mod shell;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
