@@ -2,14 +2,13 @@ use std::{process, thread};
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::path::Path;
 use std::time::Duration;
 
 use colored::Colorize;
 use whoami::fallible;
 
 use crate::{error, shell, success};
-use crate::files::{prep_download, receive_file, upload};
+use crate::files::{prep_download, receive_file, string_to_path, upload};
 
 pub fn start_client(ip: String, port: String) {
     loop {
@@ -83,7 +82,7 @@ fn handle_server_response(stream: &mut TcpStream, response: String) -> Result<()
                 }
             }
             "UPLOAD" => {
-                let path_str = lines.next().unwrap().trim_matches(char::from(0)).trim();
+                let output = string_to_path(lines.next().unwrap());
                 let file_len = lines
                     .next()
                     .unwrap()
@@ -91,7 +90,6 @@ fn handle_server_response(stream: &mut TcpStream, response: String) -> Result<()
                     .trim()
                     .parse::<u64>()
                     .unwrap();
-                let output = Path::new(&path_str);
                 match prep_download(output) {
                     Ok(_) => {
                         stream.write_all(b"OK").unwrap();
@@ -101,14 +99,14 @@ fn handle_server_response(stream: &mut TcpStream, response: String) -> Result<()
                 }
             }
             "DOWNLOAD" => {
-                let path_str = lines.next().unwrap().trim_matches(char::from(0)).trim();
-                match OpenOptions::new().read(true).open(path_str) {
+                let path = string_to_path(lines.next().unwrap());
+                match OpenOptions::new().read(true).open(path) {
                     Ok(file) => match file.metadata() {
                         Ok(metadata) => {
                             stream
                                 .write_all(format!("OK\n\r{}", metadata.len()).as_bytes())
                                 .unwrap();
-                            upload(stream, Path::new(path_str));
+                            upload(stream, path);
                         }
                         Err(e) => stream.write_all(e.to_string().as_bytes()).unwrap(),
                     },

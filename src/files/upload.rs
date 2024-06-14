@@ -11,12 +11,12 @@ pub fn upload(stream: &mut TcpStream, local_path: &Path) {
     loop {
         match file.read(&mut file_buffer) {
             Ok(0) => {
-                success!("File sent");
+                success!("File uploaded");
                 break;
             }
             Ok(n) => {
                 if stream.write_all(&file_buffer[..n]).is_err() {
-                    error!("Error sending file");
+                    error!("Error uploading file");
                     break;
                 }
             }

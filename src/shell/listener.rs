@@ -8,6 +8,9 @@ use colored::Colorize;
 use encoding_rs::UTF_8;
 
 #[cfg(unix)]
+use signal_hook::{consts, iterator::Signals};
+
+#[cfg(unix)]
 use crate::shell::setup_fd;
 
 // It will complain on unix systems without this lint rule.
@@ -88,6 +91,7 @@ pub fn listen(port: u16) -> Result<()> {
     let (stream, _) = listener.accept()?;
     #[cfg(unix)]
     {
+        Signals::new(&[consts::SIGINT])?;
         setup_fd()?;
         listen_tcp_normal(stream)?;
     }

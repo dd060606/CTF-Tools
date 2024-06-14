@@ -50,7 +50,7 @@ pub fn receive_file(stream: &mut TcpStream, output: &Path, file_len: u64) {
                 }
                 received_size += n as u64;
                 if received_size >= file_len {
-                    success!("File downloaded");
+                    success!("File downloaded ({})", output.to_string_lossy());
                     break;
                 }
             }
