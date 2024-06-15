@@ -4,9 +4,10 @@ use colored::Colorize;
 
 use crate::commands::{
     CommandClose, CommandDebug, CommandDownload, CommandExit, CommandHelp, CommandInfo,
-    CommandLinpeas, CommandList, CommandSelect, CommandShell, CommandUpload,
+    CommandLinpeas, CommandList, CommandPayloads, CommandSelect, CommandShell, CommandUpload,
 };
 use crate::connections::Connections;
+use crate::payloads::Payloads;
 
 pub trait Command {
     fn name(&self) -> String;
@@ -19,6 +20,7 @@ pub trait Command {
 pub struct CommandHandler<'a> {
     pub commands: Vec<Box<dyn Command>>,
     pub connections: &'a Arc<Mutex<Connections>>,
+    pub payloads: Payloads,
 }
 impl<'a> CommandHandler<'a> {
     pub fn new(connections: &'a Arc<Mutex<Connections>>) -> CommandHandler {
@@ -35,10 +37,11 @@ impl<'a> CommandHandler<'a> {
         commands.push(Box::new(CommandShell {}));
         commands.push(Box::new(CommandInfo {}));
         commands.push(Box::new(CommandLinpeas {}));
-
+        commands.push(Box::new(CommandPayloads {}));
         CommandHandler {
             commands,
             connections,
+            payloads: Payloads::new(),
         }
     }
 

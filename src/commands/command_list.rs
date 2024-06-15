@@ -10,7 +10,7 @@ impl Command for CommandList {
     }
 
     fn description(&self) -> String {
-        format!("{} {}", self.name(), "- List connected clients")
+        format!("{} {}", self.name(), "- Lists connected clients")
     }
 
     fn execute(&self, handler: &CommandHandler, _args: Vec<String>) -> Result<(), String> {

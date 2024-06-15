@@ -13,6 +13,7 @@ mod server;
 #[macro_use]
 mod macros;
 mod files;
+mod payloads;
 mod shell;
 mod utils;
 
