@@ -34,10 +34,7 @@ where
                     break;
                 }
                 Ok(len) => {
-                    let (decoded, _, had_errors) = UTF_8.decode(&buffer[..len]);
-                    if had_errors {
-                        error!("Decoding error occurred");
-                    }
+                    let (decoded, ..) = UTF_8.decode(&buffer[..len]);
 
                     if let Err(err) = w.write_all(decoded.as_bytes()) {
                         error!("{}", err);

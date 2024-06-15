@@ -1,36 +1,79 @@
+use std::env;
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
 
 use curl::easy::Easy;
+use serde::Deserialize;
 
-//Download a file from a web URL
-pub fn web_download(url: &str, output_file: &Path) -> Result<(), String> {
-    if output_file.is_file() {
-        match File::create(output_file) {
-            Ok(mut file) => {
-                let mut easy = Easy::new();
-                if easy.url(url).is_err() {
-                    return Err("Error initializing curl".to_string());
-                }
-                // Set up a write function to write the response body to the file
-                match easy.write_function(move |data| {
-                    file.write_all(data).unwrap();
-                    Ok(data.len())
-                }) {
-                    Ok(_) => {
-                        // Perform the file download
-                        match easy.perform() {
-                            Ok(_) => Ok(()),
-                            Err(e) => Err(e.to_string()),
-                        }
-                    }
-                    Err(e) => Err(e.to_string()),
-                }
-            }
-            Err(e) => return Err(e.to_string()),
-        }
-    } else {
-        Err("The output path is not a file!".to_string())
+// Structure to represent the URL of assets in a GitHub release
+#[derive(Deserialize)]
+struct Asset {
+    browser_download_url: String,
+    name: String,
+}
+
+// Structure to represent a GitHub release
+#[derive(Deserialize)]
+struct Release {
+    assets: Vec<Asset>,
+}
+
+// Function to download the latest release for Linux from a GitHub repository
+pub fn download_latest_release(
+    owner: &str,
+    repo: &str,
+    r_pattern: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    // Construct the API URL to get the latest release
+    let url = format!(
+        "https://api.github.com/repos/{}/{}/releases/latest",
+        owner, repo
+    );
+
+    // Initialize the HTTP request
+    let mut easy = Easy::new();
+    easy.url(&url)?;
+    easy.useragent("curl/7.47.0")?;
+
+    // Buffer to store the JSON response
+    let mut response_data = Vec::new();
+    {
+        let mut transfer = easy.transfer();
+        transfer.write_function(|data| {
+            response_data.extend_from_slice(data);
+            Ok(data.len())
+        })?;
+        transfer.perform()?;
     }
+
+    // Parse the JSON response to get the release information
+    let release: Release = serde_json::from_slice(&response_data)?;
+
+    // Find the asset for Linux
+    let asset = release
+        .assets
+        .into_iter()
+        .find(|asset| asset.name.contains(r_pattern))
+        .ok_or("Asset not found")?;
+
+    // Download the asset
+    let mut easy = Easy::new();
+    easy.url(&asset.browser_download_url)?;
+    easy.follow_location(true)?;
+    let path = env::temp_dir().join(asset.name);
+    let mut file = File::create(&path)?;
+
+    {
+        let mut transfer = easy.transfer();
+        transfer.write_function(|data| {
+            match file.write_all(data) {
+                Ok(_) => {}
+                Err(e) => println!("{}", e.to_string()),
+            };
+            Ok(data.len())
+        })?;
+        transfer.perform()?;
+    }
+
+    Ok(path.to_string_lossy().to_string())
 }

