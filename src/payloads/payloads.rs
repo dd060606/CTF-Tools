@@ -1,4 +1,4 @@
-use crate::payloads::{PayloadDefault, PayloadWeb};
+use crate::payloads::PayloadDefault;
 
 pub enum Platform {
     Unix,
@@ -8,7 +8,7 @@ pub enum Platform {
 pub trait Payload {
     fn name(&self) -> String;
     fn description(&self) -> String;
-    fn generate(&self, ip: String, port: String) -> Result<String, String>;
+    fn generate(&self, ip: &str, port: &str, platform: Platform) -> Result<String, String>;
 
     fn platform(&self) -> Platform;
 }
@@ -22,17 +22,24 @@ impl Payloads {
         let mut payloads: Vec<Box<dyn Payload>> = Vec::new();
         //Register payloads
         payloads.push(Box::new(PayloadDefault {}));
-        payloads.push(Box::new(PayloadWeb {}));
 
         Payloads { payloads }
     }
 }
 
-//Convert a Platform to String
+//Convert a Platform to a String
 pub fn platform_to_string(platform: Platform) -> String {
     match platform {
         Platform::All => String::from("Windows & Unix"),
         Platform::Unix => String::from("Unix"),
         Platform::Windows => String::from("Windows"),
+    }
+}
+
+pub fn string_to_platform(platform: &str) -> Option<Platform> {
+    match platform.to_ascii_lowercase().as_str() {
+        "unix" | "linux" => Some(Platform::Unix),
+        "win" | "windows" => Some(Platform::Windows),
+        _ => None,
     }
 }

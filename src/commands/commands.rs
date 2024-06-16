@@ -3,8 +3,9 @@ use std::sync::{Arc, Mutex};
 use colored::Colorize;
 
 use crate::commands::{
-    CommandClose, CommandDebug, CommandDownload, CommandExit, CommandHelp, CommandInfo,
-    CommandLinpeas, CommandList, CommandPayloads, CommandSelect, CommandShell, CommandUpload,
+    CommandClose, CommandDebug, CommandDownload, CommandExit, CommandGenerate, CommandHelp,
+    CommandInfo, CommandLinpeas, CommandList, CommandPayloads, CommandSelect, CommandShell,
+    CommandUpload,
 };
 use crate::connections::Connections;
 use crate::payloads::Payloads;
@@ -38,6 +39,7 @@ impl<'a> CommandHandler<'a> {
         commands.push(Box::new(CommandInfo {}));
         commands.push(Box::new(CommandLinpeas {}));
         commands.push(Box::new(CommandPayloads {}));
+        commands.push(Box::new(CommandGenerate {}));
         CommandHandler {
             commands,
             connections,
