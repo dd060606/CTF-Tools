@@ -35,17 +35,19 @@ To start the client, use:
 
 Here is a list of commands available:
 
-| Command                                  |                           Description                           |                  Example                   |
-|:-----------------------------------------|:---------------------------------------------------------------:|:------------------------------------------:|
-| `help (<command name>)`                  |              Displays a list of available commands              |           `help` or `help list`            |
-| `shell`                                  |         Establishes a remote shell on the target client         |                                            |
-| `info`                                   | Retrieves detailed information from the client. (OS, User, ...) |                                            |
-| `list`                                   |                     List connected clients                      |                                            |
-| `select <id>`                            |                        Selects a client                         |                 `select 2`                 |
-| `upload <local path> <remote path>`      |              Uploads a file on the target machine               | `upload /home/kali/test.txt /tmp/test.txt` |
-| `download <remote path> (<output path>)` |            Downloads a file from the target machine             |      `download /etc/passwd ./passwd`       |
-| `close`                                  |       Stops the CTF-Tools process on the selected client        |                                            |
-| `exit`                                   |            Terminates the CTF-Tools console session.            |                                            |
+| Command                                          |                           Description                           |                  Example                   |
+|:-------------------------------------------------|:---------------------------------------------------------------:|:------------------------------------------:|
+| `help (<command name>)`                          |              Displays a list of available commands              |           `help` or `help list`            |
+| `shell`                                          |         Establishes a remote shell on the target client         |                                            |
+| `info`                                           | Retrieves detailed information from the client. (OS, User, ...) |                                            |
+| `list`                                           |                     Lists connected clients                     |                                            |
+| `payloads`                                       |                    Lists available payloads                     |                                            |
+| `generate <payload name> <platform> <ip> <port>` |            Generates a payload to execute CTF-Tools             |    `gen default linux 10.10.10.10 8888`    |                                            |
+| `select <id>`                                    |                        Selects a client                         |                 `select 2`                 |
+| `upload <local path> <remote path>`              |              Uploads a file on the target machine               | `upload /home/kali/test.txt /tmp/test.txt` |
+| `download <remote path> (<output path>)`         |            Downloads a file from the target machine             |      `download /etc/passwd ./passwd`       |
+| `close`                                          |       Stops the CTF-Tools process on the selected client        |                                            |
+| `exit`                                           |            Terminates the CTF-Tools console session.            |                                            |
 
 ## Build
 
