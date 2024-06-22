@@ -10,7 +10,6 @@ This project was built to learn and explore Rust programming.
 - **Interactive reverse shell** (Based on [rustcat](https://github.com/robiot/rustcat))
 - **Upload / Download**
 - **Auto-reconnect** (When the client loses connection with the server)
-- **Chisel integration (TCP/UDP tunnel) [chisel](https://github.com/jpillora/chisel)** (TODO)
 - **Multiple client support**
 
 ## Usage
