@@ -8,7 +8,7 @@ pub enum Platform {
 pub trait Payload {
     fn name(&self) -> String;
     fn description(&self) -> String;
-    fn generate(&self, ip: &str, port: &str, platform: Platform) -> Result<String, String>;
+    fn generate(&self, ip: &str, port: &str, platform: Platform) -> Result<(), String>;
 
     fn platform(&self) -> Platform;
 }

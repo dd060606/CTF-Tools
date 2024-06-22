@@ -15,7 +15,6 @@ mod macros;
 mod files;
 mod payloads;
 mod shell;
-mod utils;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
